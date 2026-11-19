@@ -22,90 +22,88 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Register" />
+        <Head title="Créer un compte" />
 
-        <form @submit.prevent="submit">
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gold-700 dark:text-gold-300">
+            Création de compte
+        </p>
+        <h1 class="mt-3 font-display text-3xl text-gray-900 dark:text-white sm:text-4xl">
+            Rejoindre la paroisse
+        </h1>
+        <p class="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+            Renseignez vos informations pour créer votre accès à l'administration.
+        </p>
+
+        <form class="mt-8 space-y-5" @submit.prevent="submit">
             <div>
-                <InputLabel for="name" value="Name" />
-
+                <InputLabel for="name" value="Nom complet" />
                 <TextInput
                     id="name"
                     type="text"
-                    class="mt-1 block w-full"
+                    class="mt-2"
                     v-model="form.name"
                     required
                     autofocus
                     autocomplete="name"
                 />
-
                 <InputError class="mt-2" :message="form.errors.name" />
             </div>
 
-            <div class="mt-4">
-                <InputLabel for="email" value="Email" />
-
+            <div>
+                <InputLabel for="email" value="Adresse e-mail" />
                 <TextInput
                     id="email"
                     type="email"
-                    class="mt-1 block w-full"
+                    class="mt-2"
                     v-model="form.email"
                     required
                     autocomplete="username"
                 />
-
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-
+            <div>
+                <InputLabel for="password" value="Mot de passe" />
                 <TextInput
                     id="password"
                     type="password"
-                    class="mt-1 block w-full"
+                    class="mt-2"
                     v-model="form.password"
                     required
+                    minlength="12"
                     autocomplete="new-password"
                 />
-
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="mt-4">
-                <InputLabel
-                    for="password_confirmation"
-                    value="Confirm Password"
-                />
-
+            <div>
+                <InputLabel for="password_confirmation" value="Confirmer le mot de passe" />
                 <TextInput
                     id="password_confirmation"
                     type="password"
-                    class="mt-1 block w-full"
+                    class="mt-2"
                     v-model="form.password_confirmation"
                     required
+                    minlength="12"
                     autocomplete="new-password"
                 />
-
-                <InputError
-                    class="mt-2"
-                    :message="form.errors.password_confirmation"
-                />
+                <InputError class="mt-2" :message="form.errors.password_confirmation" />
             </div>
 
-            <div class="mt-4 flex items-center justify-end">
+            <div class="flex flex-wrap items-center justify-between gap-3">
                 <Link
                     :href="route('login')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    class="text-sm font-semibold text-spiritual-700 underline-offset-4 hover:underline dark:text-spiritual-300"
                 >
-                    Already registered?
+                    Déjà un compte ? Se connecter
                 </Link>
 
                 <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
+                    class="w-full sm:w-auto"
+                    :class="{ 'opacity-50': form.processing }"
                     :disabled="form.processing"
                 >
-                    Register
+                    Créer mon compte
                 </PrimaryButton>
             </div>
         </form>

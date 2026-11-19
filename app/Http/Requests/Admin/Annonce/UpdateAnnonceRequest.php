@@ -39,6 +39,8 @@ class UpdateAnnonceRequest extends FormRequest
             'archivee_le' => ['nullable', 'date'],
             'publier' => ['boolean'],
             'notifier' => ['boolean'],
+            'image' => ['nullable', 'file', 'mimes:jpeg,png,webp', 'max:5120'],
+            'supprimer_image' => ['boolean'],
         ];
     }
 

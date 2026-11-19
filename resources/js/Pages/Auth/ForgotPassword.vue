@@ -4,7 +4,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 
 defineProps({
     status: {
@@ -23,44 +23,50 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Forgot Password" />
+        <Head title="Mot de passe oublié" />
 
-        <div class="mb-4 text-sm text-gray-600">
-            Forgot your password? No problem. Just let us know your email
-            address and we will email you a password reset link that will allow
-            you to choose a new one.
-        </div>
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gold-700 dark:text-gold-300">
+            Récupération
+        </p>
+        <h1 class="mt-3 font-display text-3xl text-gray-900 dark:text-white sm:text-4xl">
+            Mot de passe oublié ?
+        </h1>
+        <p class="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+            Indiquez votre adresse e-mail : nous vous enverrons un lien pour choisir un nouveau mot de passe.
+        </p>
 
-        <div
-            v-if="status"
-            class="mb-4 text-sm font-medium text-green-600"
-        >
+        <div v-if="status" class="mt-6 rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-800 dark:bg-green-900/20 dark:text-green-200">
             {{ status }}
         </div>
 
-        <form @submit.prevent="submit">
+        <form class="mt-8 space-y-5" @submit.prevent="submit">
             <div>
-                <InputLabel for="email" value="Email" />
-
+                <InputLabel for="email" value="Adresse e-mail" />
                 <TextInput
                     id="email"
                     type="email"
-                    class="mt-1 block w-full"
+                    class="mt-2"
                     v-model="form.email"
                     required
                     autofocus
                     autocomplete="username"
                 />
-
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="mt-4 flex items-center justify-end">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <Link
+                    :href="route('login')"
+                    class="text-sm font-semibold text-spiritual-700 underline-offset-4 hover:underline dark:text-spiritual-300"
+                >
+                    Retour à la connexion
+                </Link>
                 <PrimaryButton
-                    :class="{ 'opacity-25': form.processing }"
+                    class="w-full sm:w-auto"
+                    :class="{ 'opacity-50': form.processing }"
                     :disabled="form.processing"
                 >
-                    Email Password Reset Link
+                    Envoyer le lien
                 </PrimaryButton>
             </div>
         </form>

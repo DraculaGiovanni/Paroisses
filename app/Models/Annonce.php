@@ -7,10 +7,13 @@ use App\Support\AnnouncementCategory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Annonce extends Model
 {
     use BelongsToParoisse, HasFactory;
+
+    protected $appends = ['image_url'];
 
     protected $fillable = [
         'paroisse_id',
@@ -26,6 +29,7 @@ class Annonce extends Model
         'expire_le',
         'archivee_le',
         'responsable',
+        'image_path',
     ];
 
     protected $casts = [
@@ -70,6 +74,11 @@ class Annonce extends Model
     {
         return AnnouncementCategory::tryFrom($this->categorie)
             ?? AnnouncementCategory::Administration;
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image_path ? Storage::url($this->image_path) : null;
     }
 
     public function getStatusAttribute(): string

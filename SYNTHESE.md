@@ -436,3 +436,175 @@ Aucune nouvelle dépendance, mouvement CSS uniquement et `prefers-reduced-motion
 ### Non vérifié
 
 - L’interface n’a pas été ouverte dans un navigateur par l’assistant ; la checklist ci-dessus reste à exécuter par l’utilisateur.
+
+## Refonte visuelle A–F à partir des captures Dribbble (19 novembre 2026)
+
+### Direction appliquée
+
+- Adaptation, pas copie : fond crème chaud, titres en serif humaniste (`Georgia` via `fontFamily.display`, sans nouvelle dépendance), accent or réservé aux actions et badges, spirituel pour la navigation locale.
+- Une seule idée visuelle forte par écran ; aucun dégradé ; cartes 1 colonne sur mobile, 2 à partir de `sm`, 3 sur grand écran ; espacements par `gap` ; cibles tactiles `min-h-11` conservées ; mode sombre conservé.
+- Mouvements : uniquement les directives `v-motion` déjà présentes dans le projet, 400–500 ms, décalage maximum 5 éléments × 60 ms ; `prefers-reduced-motion` reste couvert globalement par `resources/css/app.css`.
+
+### Écrans adaptés
+
+- **A – Page paroisse** (`Public/Paroisse.vue`, `HeroSection.vue`) : hero éditorial crème avec grand titre sérif, sus-titre à point doré, carte flottante « prochaine messe », bandeau liturgique, grille d'annonces et bloc d'appel aux intentions. Aucune photo générique ajoutée.
+- **B – Style éditorial/chaleureux** : typographie `display`, cartes aérées, liens « Lire » à flèche, colonnes latérales sur grand écran.
+- **C – Prochaine messe et horaires** (`NextMassCard.vue`, `WeekSchedule.vue`) : carte avec pastille jour/heure, horaires regroupés par jour avec pastilles de temps ; ancre `#horaires` depuis le hero.
+- **D – Formulaires publics** (`IntentionsNav.vue` nouveau, `Nouvelle.vue`, `Suivi.vue`, `Confirmation.vue`) : colonne éditoriale avec navigation et note de confidentialité sur grand écran, nav compacte sur mobile ; champs et logique anti-spam inchangés (honeypot, jeton signé, texte brut, aucun `v-html`).
+- **E – Annonces** (`Public/Annonces/Index.vue`, `Show.vue`) : trois colonnes sur `xl` (navigation, fil d'annonces avec pastilles de date et filtres de catégorie, « À la une »), pagination « Précédent / Suivant » ajoutée, article en mise en page éditoriale. Le contrôleur transmet désormais la liste des catégories depuis `AnnouncementCategory` (source unique).
+- **F – Administration** (`Admin/Dashboard.vue`, `StatCard.vue`, `PageHeader.vue`, `AdminLayout.vue`, `Admin/NavLink.vue`) : en-tête sérif avec sus-titre, cartes de stats à bordure supérieure colorée, prochaine messe mise en avant, navigation latérale avec repère doré sur l'élément actif. Aucune donnée fictive (pas de graphique inventé).
+
+### Vérifications
+
+- `npm run build` : réussi, 896 modules transformés.
+- Suite PHP complète : 288 tests réussis, 1 689 assertions, 0 échec.
+- `node --test tests/Frontend/InputRendering.test.mjs` : 3 tests réussis (dont compilation SFC et protections anti-spam).
+- `vendor/bin/pint --dirty --format agent` : aucun écart.
+- Contrôles HTTP sur le serveur de développement : `/`, `/p/{slug}`, `/p/{slug}/annonces`, `/p/{slug}/intentions/nouvelle`, `/p/{slug}/intentions/suivi` → 200 ; `/admin/dashboard` → redirection vers la connexion.
+
+### Poids
+
+- CSS principal : 11,89 → 12,41 kB gzip (+0,52 kB).
+- JavaScript principal : 120,02 → 120,07 kB gzip (+0,05 kB).
+- Chunk de la page paroisse : 4,39 → 5,41 kB gzip (+1,02 kB), dont les composants publics déplacés dans ce chunk.
+- Aucune dépendance ajoutée (ni JS ni police).
+
+### Contrôles à faire par l’utilisateur
+
+- Page paroisse et annonces à 360 / 768 / 1280 px, modes clair et sombre ; lisibilité du titre sérif et des pastilles de date en plein soleil.
+- Parcours intention : formulaire → confirmation (copie du code) → suivi, sur téléphone.
+- Dashboard admin : cartes de stats sur 2 colonnes à 360 px, barre d'onglets mobile défilable, lien « Voir le site public » avec `target="_blank"`.
+
+### Non vérifié
+
+- Le rendu visuel n’a pas été ouvert dans un navigateur par l’assistant : les contrôles ci-dessus restent à exécuter par l’utilisateur.
+- Les écrans G à la fin (authentification, profil, super-admin, feuille imprimable, pages d'administration secondaires) ne sont pas encore traités — voir la section suivante pour G/H/I.
+
+## Refonte visuelle G–I (19 novembre 2026, suite)
+
+### G — Feuille imprimable et liturgie
+
+- `Admin/Intentions/Feuille.vue` : navigation par jour (veille / lendemain), sélecteur de date, bouton d'impression doré, pastille d'heure par messe, liste numérotée des intentions avec code de suivi et type, pied de page réservé à l'impression. CSS `@media print` : A4, marges 1,5 cm, aucun dégradé, fond blanc forcé, blocs non coupés (`break-inside-avoid`). Aucune donnée personnelle supplémentaire ajoutée au document.
+- `Admin/Liturgie/Index.vue` : légende des six couleurs avec pastille **et libellé**, formulaire d'exception et liste des dates enregistrées réorganisés en deux cartes. La couleur n'est jamais seule.
+
+### H — Authentification, profil et réglages
+
+- `GuestLayout.vue` : écran splitté sur grand écran (panneau spirituel avec grand texte sérif et filigrane d'église, pas de photo générique) ; formulaire dans une carte arrondie sur le reste. Sur mobile, seul le panneau formulaire s'affiche avec un repère de marque.
+- Composants Breeze restylés une fois pour toutes : `TextInput`, `PrimaryButton`, `InputLabel`, `Checkbox` passent en crème/spirituel, `min-h-11`, coins arrondis, mode sombre conservé.
+- `Login`, `ForgotPassword`, `ResetPassword`, `ConfirmPassword`, `VerifyEmail` : textes traduits en français, titres sérif, messages et boutons cohérents. `ChangePassword` garde son parcours et reçoit le même en-tête.
+- `Profile/Edit.vue` : bannière d'identité (initiale, nom, e-mail, rôle), carte « Informations personnelles », carte « Mot de passe », carte « Supprimer le compte ». Les trois partiels sont traduits en français sans modification de leur logique.
+- `Admin/Paroisse/Edit.vue` : carte de synthèse avec nom, diocèse et lien vers le site public ; deux cartes « Identité & coordonnées » et « Couleur d'accent » avec aperçu. La liste des couleurs, la validation et l'enregistrement sont inchangés.
+
+### I — Mobile d'abord (règle transversale, pas une page)
+
+- Toutes les nouvelles grilles partent d'une colonne et n'ajoutent des colonnes qu'à partir de `sm` / `lg` / `xl` ; les zones tactiles restent à au moins 44 px (`min-h-11`) ; les liens de retour restent visibles sur mobile ; les colonnes latérales deviennent des navigation compactes ou disparaissent ; le mode sombre est conservé sur chaque écran.
+- Aucune bibliothèque d'animation ajoutée ; le mouvement existant reste couvert par `prefers-reduced-motion`.
+
+### Vérifications
+
+- `npm run build` : réussi, 896 modules transformés.
+- Suite PHP complète : 288 tests réussis, 1 689 assertions, 0 échec.
+- `node --test tests/Frontend/InputRendering.test.mjs` : 3 tests réussis.
+- Pint `--dirty` : aucun écart.
+- HTTP : `/login`, `/forgot-password`, `/password/force`, `/` → 200.
+
+### Poids
+
+- CSS principal : 12,41 → 12,70 kB gzip (+0,29 kB) ; feuille d'impression 0,09 kB gzip.
+- JavaScript principal : 120,07 kB gzip (inchangé).
+- Chunk `Feuille` : 1,82 → 2,58 kB gzip (+0,76 kB) ; chunks d'authentification 0,8–1,5 kB gzip chacun.
+- Aucune dépendance ajoutée.
+
+### Contrôles à faire par l’utilisateur
+
+- Feuille : choisir une date, naviguer au jour suivant, vérifier l'aperçu avant impression sur A4 et l'absence de coupure dans une messe.
+- Connexion et mot de passe oublié sur téléphone : lisibilité du panneau, taille des champs, liens de retour.
+- Profil et réglages à 360 / 768 / 1280 px, modes clair et sombre.
+
+### Non vérifié
+
+- Le rendu visuel n'a pas été ouvert dans un navigateur par l'assistant.
+- Restent à traiter si tu le souhaites : `Super/Paroisses` (liste + création), `Admin/Equipe`, `Admin/Intentions/Index` et `Show`, `Admin/Annonces`, `Admin/Horaires` et la page `/` (`Welcome.vue`, encore template Laravel par défaut).
+
+## Fonctionnalités transverses (19 novembre 2026)
+
+### Décisions validées par l'utilisateur
+
+- Images : logo + bannière par paroisse, une image par annonce, stockage local.
+- Couleur : appliquée partout pour la paroisse concernée, sans affecter les autres.
+- Journal : super-admin voit toutes les paroisses ; un admin voit seulement la sienne.
+- QR code : génération par une bibliothèque PHP (accord donné).
+- E-mail : liens de réinitialisation au mauvais domaine **et** e-mails non reçus.
+- Avis anonymes : formulaire public avec modération par l'admin.
+
+### Inscription
+
+- `Auth/Register.vue` restylé et traduit (même direction que les autres pages d'authentification).
+- La route `register` reste **commentée** dans `routes/auth.php` : aucun visiteur ne peut créer de compte, conformément à la règle du projet. Le composant est prêt si la fonctionnalité est réactivée plus tard.
+
+### Images
+
+- Migrations : `banniere_path` sur `paroisses`, `image_path` sur `annonces`. `logo_path` et `whatsapp_channel_url` existaient déjà.
+- `UpdateParoisseRequest` valide logo (2 Mo) et bannière (5 Mo) en JPEG/PNG/WebP ; `StoreAnnonceRequest` / `UpdateAnnonceRequest` valident l'image d'annonce (5 Mo) et permettent de la supprimer.
+- `ParoisseSettingsController` et `AnnonceController` enregistrent les fichiers sur le disque `public`, suppriment l'ancien fichier lors d'un remplacement, et journalisent la modification de paroisse.
+- `php artisan storage:link` exécuté. Affichage : logo et bannière dans le hero public, image sur les cartes d'annonces et la page de détail. Aucune image générique ajoutée.
+- Cache public : la charge utile contient désormais `image_url` pour les annonces ; les-clés restent `v3` mais la validation du cache exige la présence de `avis` (voir ci-dessous).
+
+### Couleur par paroisse
+
+- Nouvelles classes CSS `accent-solid`, `accent-text`, `accent-border`, `accent-soft` dérivées de `--accent` (`resources/css/app.css`).
+- `--accent` est posé sur la page publique, les pages d'intention/annonces et le layout admin à partir de `paroisse.couleur_principale`. La ressource publique expose désormais cette couleur.
+- Boutons primaires, pastilles d'horaires, carte de prochaine messe, active du menu admin et cartes de statistiques suivent la couleur de la paroisse. Le vert/or liturgique reste réservé aux indicateurs liturgiques.
+- Deux paroisses distinctes avec deux couleurs différentes restent isolées : la couleur vient toujours des données de la paroisse affichée.
+
+### Journal d'activité
+
+- Table `activites` : paroisse, utilisateur, type d'action, type/id de la cible, date. **Aucun nom, téléphone, contenu ni IP** n'est stocké.
+- `ActiviteObserver` enregistre les créations/modifications/suppressions d'annonces, horaires, intentions, couleurs exceptionnelles et utilisateurs, uniquement pour un utilisateur connecté et dans sa paroisse.
+- `ActivitePolicy` : super-admin = toutes les paroisses ; admin = sa paroisse ; secrétaire = refus. Page `Admin/Activites/Index.vue` avec compteurs, dernières actions et liste des utilisateurs.
+
+### E-mail et liens
+
+- `.env.example` : `APP_NAME=Paroisses`, locale française, commentaire sur `APP_URL`, `FORCE_HTTPS`, variables SMTP vides et `MAIL_ENCRYPTION`.
+- `config/app.php` : nouvelle clé `force_https` ; `AppServiceProvider` force le schéma HTTPS quand elle est active, afin que les liens de réinitialisation pointent vers le bon domaine.
+- À faire par l'utilisateur (je n'ai pas touché `.env`) : renseigner `APP_URL`, `FORCE_HTTPS`, `MAIL_MAILER=smtp`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_ENCRYPTION`, `MAIL_FROM_ADDRESS`, puis `php artisan config:clear`.
+
+### QR code et WhatsApp
+
+- Dépendance PHP ajoutée avec accord : `bacon/bacon-qr-code` v3.0.0.
+- `GET /admin/paroisse/qr-code` renvoie un SVG du lien `route('paroisse.show', $paroisse)` ; bouton d'aperçu et de téléchargement dans les réglages.
+- Lien du groupe/chaîne WhatsApp validé (domaine WhatsApp uniquement) puis affiché en bouton sur la page publique.
+
+### Avis anonymes
+
+- Table `avis` : paroisse, message, statut (`en_attente`, `publie`, `rejete`), date de modération. Aucun identifiant d'utilisateur ni IP.
+- Formulaire public : jeton horodaté signé (`PublicFormToken`), honeypot, 1 000 caractères max, texte brut, limite de 3 par heure par IP, messages en français.
+- Modération admin : publier / rejeter / remettre en attente / supprimer. Les avis publiés apparaissent sur la page publique ; l'invalidation du cache est gérée par `AvisObserver`.
+- `AvisPolicy` : admin de la paroisse ou super-admin uniquement.
+
+### Vérifications
+
+- Suite PHP : **295 tests réussis, 1 729 assertions**, 0 échec (dont 7 nouveaux tests dédiés).
+- `npm run build` : réussi, 898 modules transformés.
+- `node --test tests/Frontend/InputRendering.test.mjs` : 3 tests réussis.
+- Pint `--dirty` : aucun écart.
+- `php artisan storage:link` : lien créé.
+
+### Poids
+
+- CSS principal : 12,70 → 12,94 kB gzip (+0,24 kB).
+- JavaScript principal : 120,07 → 120,14 kB gzip (+0,07 kB) ; chunk de la page paroisse 5,42 → 7,13 kB gzip (+1,71 kB).
+- Une seule dépendance PHP ajoutée (QR), aucune dépendance JavaScript.
+
+### Contrôles à faire par l'utilisateur
+
+- Téléverser un logo, une bannière et une image d'annonce ; vérifier l'affichage sur la page publique et la suppression de l'ancienne image.
+- Changer la couleur de deux paroisses différentes et vérifier que chacune garde la sienne (page publique et espace admin).
+- Scanner le QR code téléchargé depuis les réglages ; tester le bouton WhatsApp.
+- Remplir la configuration mail ci-dessus puis demander un lien de réinitialisation et vérifier le domaine du lien reçu.
+- Envoyer un avis anonyme, le modérer, vérifier qu'il apparaît sur la page publique.
+
+### Non vérifié
+
+- Le rendu visuel n'a pas été ouvert dans un navigateur par l'assistant.
+- L'envoi réel d'e-mails n'a pas été testé : la configuration SMTP reste à renseigner par l'utilisateur.

@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\ActiviteController;
 use App\Http\Controllers\Admin\AnnonceController;
+use App\Http\Controllers\Admin\AvisController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\HoraireController;
 use App\Http\Controllers\Admin\IntentionController;
@@ -8,6 +10,7 @@ use App\Http\Controllers\Admin\LiturgieController;
 use App\Http\Controllers\Admin\ParoisseSettingsController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Public\AvisController as PublicAvisController;
 use App\Http\Controllers\PublicIntentionController;
 use App\Http\Controllers\PublicParoisseController;
 use App\Http\Controllers\Super\ParoisseController;
@@ -48,11 +51,16 @@ Route::post('/p/{paroisse}/intentions/suivi', [PublicIntentionController::class,
     ->middleware('throttle:intentions.suivi')
     ->name('paroisse.intentions.suivi.rechercher');
 
+Route::post('/p/{paroisse}/avis', [PublicAvisController::class, 'store'])
+    ->middleware('throttle:avis.creation')
+    ->name('paroisse.avis.store');
+
 Route::middleware(['auth', 'paroisse.isolation'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/paroisse', [ParoisseSettingsController::class, 'edit'])->name('paroisse.edit');
     Route::put('/paroisse', [ParoisseSettingsController::class, 'update'])->name('paroisse.update');
+    Route::get('/paroisse/qr-code', [ParoisseSettingsController::class, 'qrCode'])->name('paroisse.qr-code');
 
     Route::get('/equipe', [TeamController::class, 'index'])->name('equipe.index');
     Route::post('/equipe', [TeamController::class, 'store'])->name('equipe.store');
@@ -63,6 +71,12 @@ Route::middleware(['auth', 'paroisse.isolation'])->prefix('admin')->name('admin.
     Route::resource('horaires', HoraireController::class)->except(['show', 'create', 'edit']);
     Route::resource('annonces', AnnonceController::class)->except(['show']);
     Route::patch('/annonces/{annonce}/archive', [AnnonceController::class, 'toggleArchive'])->name('annonces.toggle-archive');
+
+    Route::get('/activites', [ActiviteController::class, 'index'])->name('activites.index');
+
+    Route::get('/avis', [AvisController::class, 'index'])->name('avis.index');
+    Route::patch('/avis/{avis}', [AvisController::class, 'update'])->name('avis.update');
+    Route::delete('/avis/{avis}', [AvisController::class, 'destroy'])->name('avis.destroy');
 
     Route::get('/liturgie', [LiturgieController::class, 'index'])->name('liturgie.index');
     Route::post('/liturgie', [LiturgieController::class, 'store'])->name('liturgie.store');

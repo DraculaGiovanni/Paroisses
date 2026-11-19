@@ -38,6 +38,7 @@ class StoreAnnonceRequest extends FormRequest
             'expire_le' => ['nullable', 'date', 'after:publie_le'],
             'responsable' => ['nullable', 'string', 'max:100'],
             'notifier' => ['boolean'],
+            'image' => ['nullable', 'file', 'mimes:jpeg,png,webp', 'max:5120'],
         ];
     }
 

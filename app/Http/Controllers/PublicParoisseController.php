@@ -5,14 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Resources\HoraireResource;
 use App\Http\Resources\PublicParoisseResource;
 use App\Models\Annonce;
+use App\Models\Avis;
 use App\Models\CouleurExceptionnelle;
 use App\Models\Horaire;
 use App\Models\Paroisse;
+use App\Support\AnnouncementCategory;
 use App\Support\LiturgicalCalendar;
+use App\Support\PublicFormToken;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -27,6 +31,7 @@ class PublicParoisseController extends Controller
      *
      * Performance:
      * - 3 requêtes à froid (paroisse + horaires + annonces)
+     * - 4 requêtes à froid (paroisse + horaires + annonces + avis publiés)
      * - 1 requête à chaud (liaison de la paroisse)
      * - TTL: 10 minutes
      * - Invalidation automatique via Observers
@@ -54,6 +59,8 @@ class PublicParoisseController extends Controller
             'prochaine_messe' => $this->findNextMass($horaires, $now),
             'server_time' => $now->toIso8601String(),
             'liturgical' => $liturgical,
+            'avis' => $publicContent['avis'] ?? [],
+            'avis_form_token' => PublicFormToken::issue(),
         ]);
     }
 
@@ -94,6 +101,13 @@ class PublicParoisseController extends Controller
             'paroisse' => PublicParoisseResource::make($paroisse)->resolve(request()),
             'annonces' => $paginator,
             'categorie' => $category !== '' ? $category : null,
+            'categories' => array_map(
+                static fn (AnnouncementCategory $category): array => [
+                    'value' => $category->value,
+                    'label' => $category->label(),
+                ],
+                AnnouncementCategory::cases(),
+            ),
         ]);
     }
 
@@ -120,6 +134,7 @@ class PublicParoisseController extends Controller
                 'id' => $model->id,
                 'titre' => $model->titre,
                 'contenu' => $model->contenu,
+                'image_url' => $model->image_path ? Storage::url($model->image_path) : null,
                 'categorie' => $model->categorie,
                 'categorie_label' => $model->category()->label(),
                 'publie_le' => $model->publie_le->format('Y-m-d H:i'),
@@ -129,7 +144,7 @@ class PublicParoisseController extends Controller
     }
 
     /**
-     * @return array{horaires: array<int, array<string, mixed>>, annonces: array<int, array<string, mixed>>}
+     * @return array{horaires: array<int, array<string, mixed>>, annonces: array<int, array<string, mixed>>, avis: array<int, array<string, mixed>>}
      */
     private function loadPublicContent(Paroisse $paroisse): array
     {
@@ -144,10 +159,18 @@ class PublicParoisseController extends Controller
             ->whereNotNull('publie_le')
             ->actives()
             ->nonArchivees()
-            ->select(['id', 'titre', 'contenu', 'categorie', 'responsable', 'publie_le', 'expire_le', 'archivee_le', 'epinglee', 'date_debut', 'date_fin', 'actif'])
+            ->select(['id', 'titre', 'contenu', 'image_path', 'categorie', 'responsable', 'publie_le', 'expire_le', 'archivee_le', 'epinglee', 'date_debut', 'date_fin', 'actif'])
             ->orderByDesc('epinglee')
             ->orderByDesc('publie_le')
             ->get();
+
+        $avis = Avis::forParoisse($paroisse->id)
+            ->publies()
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get(['message'])
+            ->map(fn (Avis $avis): array => ['message' => $avis->message])
+            ->all();
 
         return [
             'horaires' => array_values(HoraireResource::collection($horaires)->resolve(request())),
@@ -155,6 +178,7 @@ class PublicParoisseController extends Controller
                 'id' => $annonce->id,
                 'titre' => $annonce->titre,
                 'contenu' => $annonce->contenu,
+                'image_url' => $annonce->image_path ? Storage::url($annonce->image_path) : null,
                 'categorie' => $annonce->categorie,
                 'categorie_label' => $annonce->category()->label(),
                 'publie_le' => $annonce->publie_le?->format('Y-m-d H:i'),
@@ -162,6 +186,7 @@ class PublicParoisseController extends Controller
                 'archivee_le' => $annonce->archivee_le?->format('Y-m-d H:i'),
                 'epinglee' => $annonce->categorie === 'urgence' || $annonce->epinglee,
             ])->all()),
+            'avis' => array_values($avis),
         ];
     }
 
@@ -169,9 +194,10 @@ class PublicParoisseController extends Controller
     {
         if (
             ! is_array($publicContent)
-            || array_keys($publicContent) !== ['horaires', 'annonces']
+            || array_keys($publicContent) !== ['horaires', 'annonces', 'avis']
             || ! array_is_list($publicContent['horaires'])
             || ! array_is_list($publicContent['annonces'])
+            || ! array_is_list($publicContent['avis'])
         ) {
             return false;
         }

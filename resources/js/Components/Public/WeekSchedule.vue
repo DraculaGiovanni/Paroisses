@@ -1,49 +1,59 @@
 <template>
-  <section class="mb-12">
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-      Horaires de la semaine
-    </h2>
-    
-    <div v-if="horaires.length > 0" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <Card
-        v-for="(jour, index) in horairesByDay"
+  <section id="horaires" class="scroll-mt-8">
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-spiritual-700 dark:text-spiritual-300">
+          Se retrouver
+        </p>
+        <h2 class="mt-2 font-display text-3xl text-gray-900 dark:text-white sm:text-4xl">
+          Horaires des messes
+        </h2>
+      </div>
+    </div>
+
+    <div
+      v-if="horairesByDay.length > 0"
+      class="divide-y divide-cream-200 overflow-hidden rounded-3xl border border-cream-300 bg-white shadow-soft dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-900"
+    >
+      <div
+        v-for="jour in horairesByDay"
         :key="jour.num"
-        hover
+        class="grid gap-4 p-5 sm:grid-cols-[9rem_1fr] sm:gap-6 sm:p-6"
         v-motion
-        :initial="{ opacity: 0, y: 20 }"
-        :enter="{ opacity: 1, y: 0, transition: { duration: 400, delay: index * 60 } }"
+        :initial="{ opacity: 0, y: 12 }"
+        :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }"
       >
-        <div class="p-5">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+        <div>
+          <p class="font-display text-xl text-gray-900 dark:text-white sm:text-2xl">
             {{ jour.nom }}
-          </h3>
-          
-          <div class="space-y-3">
-            <div
-              v-for="horaire in jour.horaires"
-              :key="horaire.id"
-              class="flex items-start gap-3"
+          </p>
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            {{ jour.horaires.length }} {{ jour.horaires.length > 1 ? 'messes' : 'messe' }}
+          </p>
+        </div>
+
+        <div class="space-y-3">
+          <div
+            v-for="horaire in jour.horaires"
+            :key="horaire.id"
+            class="flex flex-col gap-2 rounded-2xl bg-cream-50 px-4 py-3 dark:bg-gray-800 sm:flex-row sm:items-center sm:gap-5"
+          >
+            <span
+              class="inline-flex min-h-11 w-fit items-center rounded-lg accent-solid px-3 text-sm font-semibold"
             >
-              <div class="flex-shrink-0 w-20 text-spiritual-700 dark:text-spiritual-400 font-medium">
-                {{ horaire.heure_fin ? `${horaire.heure} – ${horaire.heure_fin}` : horaire.heure }}
-              </div>
-              <div class="flex-1">
-                <div class="font-medium text-gray-900 dark:text-white">
-                  {{ horaire.type }}
-                </div>
-                <div v-if="horaire.lieu" class="text-sm text-gray-600 dark:text-gray-400">
-                  {{ horaire.lieu }}
-                </div>
-                <div v-if="horaire.note" class="text-sm text-gray-500 dark:text-gray-500 mt-1">
-                  {{ horaire.note }}
-                </div>
-              </div>
+              {{ horaire.heure_fin ? `${horaire.heure} – ${horaire.heure_fin}` : horaire.heure }}
+            </span>
+            <div class="min-w-0">
+              <p class="font-medium text-gray-900 dark:text-white">{{ horaire.type }}</p>
+              <p v-if="horaire.lieu || horaire.note" class="mt-0.5 text-sm text-gray-600 dark:text-gray-400">
+                {{ [horaire.lieu, horaire.note].filter(Boolean).join(' · ') }}
+              </p>
             </div>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
-    
+
     <EmptyState
       v-else
       title="Aucun horaire"
@@ -60,7 +70,6 @@
 
 <script setup>
 import { computed } from 'vue';
-import Card from '@/Components/UI/Card.vue';
 import EmptyState from '@/Components/UI/EmptyState.vue';
 
 const props = defineProps({
@@ -81,9 +90,9 @@ const JOURS = [
 ];
 
 const horairesByDay = computed(() => {
-  return JOURS.map(jour => ({
+  return JOURS.map((jour) => ({
     ...jour,
-    horaires: props.horaires.filter(h => h.jour_semaine === jour.num),
-  })).filter(jour => jour.horaires.length > 0);
+    horaires: props.horaires.filter((h) => h.jour_semaine === jour.num),
+  })).filter((jour) => jour.horaires.length > 0);
 });
 </script>

@@ -16,6 +16,7 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Inter var', 'Inter', ...defaultTheme.fontFamily.sans],
+                display: ['Georgia', 'Cambria', 'Times New Roman', 'serif'],
             },
             colors: {
                 // Palette personnalisée pour l'application religieuse

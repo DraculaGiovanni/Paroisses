@@ -13,7 +13,7 @@ class Paroisse extends Model
 
     protected $fillable = [
         'nom', 'slug', 'diocese', 'adresse', 'telephone',
-        'email', 'whatsapp_channel_url', 'logo_path', 'couleur_principale',
+        'email', 'whatsapp_channel_url', 'logo_path', 'banniere_path', 'couleur_principale',
     ];
 
     public function getRouteKeyName(): string

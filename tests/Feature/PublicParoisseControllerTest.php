@@ -94,9 +94,10 @@ class PublicParoisseControllerTest extends TestCase
         $cacheKey = "paroisse:{$paroisse->id}:public:v3";
         $cachedContent = Cache::get($cacheKey);
 
-        $this->assertSame(['horaires', 'annonces'], array_keys($cachedContent));
+        $this->assertSame(['horaires', 'annonces', 'avis'], array_keys($cachedContent));
         $this->assertIsArray($cachedContent['horaires']);
         $this->assertIsArray($cachedContent['annonces']);
+        $this->assertIsArray($cachedContent['avis']);
         $this->assertTrue(array_is_list($cachedContent['horaires']));
         $this->assertTrue(array_is_list($cachedContent['annonces']));
         $this->assertTrue($this->containsOnlyArraysAndScalars($cachedContent));
@@ -157,7 +158,7 @@ class PublicParoisseControllerTest extends TestCase
         $this->assertCount(1, $props['annonces']);
         $this->assertCount(1, $props['horaires']);
         $this->assertIsArray($replacedCache);
-        $this->assertSame(['horaires', 'annonces'], array_keys($replacedCache));
+        $this->assertSame(['horaires', 'annonces', 'avis'], array_keys($replacedCache));
     }
 
     public function test_public_page_excludes_draft_and_scheduled_annonces_from_cold_and_warm_cache(): void

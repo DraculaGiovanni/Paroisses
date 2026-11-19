@@ -23,7 +23,10 @@ const submit = () => {
         <Head title="Changer le mot de passe" />
 
         <div class="mb-6">
-            <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gold-700 dark:text-gold-300">
+                Première connexion
+            </p>
+            <h1 class="mt-3 font-display text-3xl text-gray-900 dark:text-white sm:text-4xl">
                 Choisissez votre mot de passe
             </h1>
             <p class="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-400">

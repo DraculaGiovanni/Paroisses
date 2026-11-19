@@ -33,69 +33,68 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Reset Password" />
+        <Head title="Nouveau mot de passe" />
 
-        <form @submit.prevent="submit">
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gold-700 dark:text-gold-300">
+            Réinitialisation
+        </p>
+        <h1 class="mt-3 font-display text-3xl text-gray-900 dark:text-white sm:text-4xl">
+            Choisissez un nouveau mot de passe
+        </h1>
+        <p class="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+            Utilisez au moins 12 caractères pour protéger votre compte.
+        </p>
+
+        <form class="mt-8 space-y-5" @submit.prevent="submit">
             <div>
-                <InputLabel for="email" value="Email" />
-
+                <InputLabel for="email" value="Adresse e-mail" />
                 <TextInput
                     id="email"
                     type="email"
-                    class="mt-1 block w-full"
+                    class="mt-2"
                     v-model="form.email"
                     required
                     autofocus
                     autocomplete="username"
                 />
-
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-
+            <div>
+                <InputLabel for="password" value="Nouveau mot de passe" />
                 <TextInput
                     id="password"
                     type="password"
-                    class="mt-1 block w-full"
+                    class="mt-2"
                     v-model="form.password"
                     required
+                    minlength="12"
                     autocomplete="new-password"
                 />
-
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="mt-4">
-                <InputLabel
-                    for="password_confirmation"
-                    value="Confirm Password"
-                />
-
+            <div>
+                <InputLabel for="password_confirmation" value="Confirmer le mot de passe" />
                 <TextInput
                     id="password_confirmation"
                     type="password"
-                    class="mt-1 block w-full"
+                    class="mt-2"
                     v-model="form.password_confirmation"
                     required
+                    minlength="12"
                     autocomplete="new-password"
                 />
-
-                <InputError
-                    class="mt-2"
-                    :message="form.errors.password_confirmation"
-                />
+                <InputError class="mt-2" :message="form.errors.password_confirmation" />
             </div>
 
-            <div class="mt-4 flex items-center justify-end">
-                <PrimaryButton
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Reset Password
-                </PrimaryButton>
-            </div>
+            <PrimaryButton
+                class="w-full sm:w-auto"
+                :class="{ 'opacity-50': form.processing }"
+                :disabled="form.processing"
+            >
+                Enregistrer le mot de passe
+            </PrimaryButton>
         </form>
     </GuestLayout>
 </template>

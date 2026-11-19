@@ -9,6 +9,7 @@ use App\Models\Annonce;
 use App\Support\AnnouncementCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class AnnonceController extends Controller
@@ -74,7 +75,16 @@ class AnnonceController extends Controller
             ? ($data['publie_le'] ?? now())
             : null;
 
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store(
+                'annonces/'.$request->user()->paroisse_id,
+                'public',
+            );
+        }
+
         Annonce::create([
+            'image_path' => $imagePath,
             'titre' => $data['titre'],
             'contenu' => $data['contenu'],
             'categorie' => $data['categorie'] ?? 'administration',
@@ -108,7 +118,23 @@ class AnnonceController extends Controller
             ? ($data['publie_le'] ?? ($annonce->publie_le ?? now()))
             : null;
 
+        $imagePath = $annonce->image_path;
+
+        if ($request->hasFile('image')) {
+            if ($imagePath) {
+                Storage::disk('public')->delete($imagePath);
+            }
+            $imagePath = $request->file('image')->store(
+                'annonces/'.$request->user()->paroisse_id,
+                'public',
+            );
+        } elseif (($data['supprimer_image'] ?? false) && $imagePath) {
+            Storage::disk('public')->delete($imagePath);
+            $imagePath = null;
+        }
+
         $annonce->update([
+            'image_path' => $imagePath,
             'titre' => $data['titre'],
             'contenu' => $data['contenu'],
             'categorie' => $data['categorie'] ?? $annonce->categorie,
@@ -127,6 +153,10 @@ class AnnonceController extends Controller
     public function destroy(Annonce $annonce)
     {
         Gate::authorize('delete', $annonce);
+
+        if ($annonce->image_path) {
+            Storage::disk('public')->delete($annonce->image_path);
+        }
 
         $annonce->delete();
 

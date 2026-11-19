@@ -44,6 +44,25 @@
     .touch-target {
         @apply min-h-[44px] min-w-[44px];
     }
+
+    /* Couleur d'accent propre à chaque paroisse */
+    .accent-solid {
+        background-color: var(--accent, #1E40AF);
+        color: #fff;
+    }
+
+    .accent-text {
+        color: var(--accent, #1E40AF);
+    }
+
+    .accent-border {
+        border-color: var(--accent, #1E40AF);
+    }
+
+    .accent-soft {
+        background-color: #EFF6FF;
+        background-color: color-mix(in srgb, var(--accent, #1E40AF) 12%, white);
+    }
 }
 
 @layer utilities {

@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class PublicParoisseResource extends JsonResource
 {
@@ -25,6 +26,9 @@ class PublicParoisseResource extends JsonResource
             'telephone' => $this->telephone,
             'email' => $this->email,
             'whatsapp_channel_url' => $this->whatsapp_channel_url,
+            'couleur_principale' => $this->couleur_principale,
+            'logo_url' => $this->logo_path ? Storage::url($this->logo_path) : null,
+            'banniere_url' => $this->banniere_path ? Storage::url($this->banniere_path) : null,
         ];
     }
 }

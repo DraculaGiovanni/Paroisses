@@ -48,7 +48,7 @@ const buttonClasses = computed(() => {
   const base = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
   
   const variants = {
-    primary: 'bg-spiritual-700 text-white hover:bg-spiritual-800 focus:ring-spiritual-500 active:scale-95',
+    primary: 'accent-solid hover:brightness-95 focus:ring-spiritual-500 active:scale-95',
     secondary: 'bg-cream-300 text-spiritual-900 hover:bg-cream-400 focus:ring-cream-400',
     ghost: 'bg-transparent text-spiritual-700 hover:bg-cream-200 focus:ring-spiritual-300',
     danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 active:scale-95',

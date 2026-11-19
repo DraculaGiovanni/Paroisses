@@ -44,6 +44,10 @@ return Application::configure(basePath: dirname(__DIR__))
         RateLimiter::for('intentions.suivi', function (Request $request): Limit {
             return Limit::perMinutes(10, 10)->by($request->ip());
         });
+
+        RateLimiter::for('avis.creation', function (Request $request): Limit {
+            return Limit::perHour(3)->by($request->ip());
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
@@ -51,13 +55,15 @@ return Application::configure(basePath: dirname(__DIR__))
         );
 
         $exceptions->render(function (ThrottleRequestsException $exception, Request $request) {
-            if (! $request->is('p/*/intentions') && ! $request->is('p/*/intentions/suivi')) {
+            if (! $request->is('p/*/intentions') && ! $request->is('p/*/intentions/suivi') && ! $request->is('p/*/avis')) {
                 return null;
             }
 
             $message = $request->is('p/*/intentions/suivi')
                 ? 'Trop de tentatives de suivi. Veuillez réessayer dans quelques minutes.'
-                : 'Trop de demandes de messe envoyées. Veuillez réessayer dans une heure.';
+                : ($request->is('p/*/avis')
+                    ? 'Trop d’avis envoyés. Veuillez réessayer dans une heure.'
+                    : 'Trop de demandes de messe envoyées. Veuillez réessayer dans une heure.');
 
             if ($request->header('X-Inertia') !== null || ! $request->expectsJson()) {
                 return back()->withErrors(['rate_limit' => $message])->withInput();

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-cream-50 dark:bg-gray-950">
+  <div class="min-h-screen bg-cream-50 dark:bg-gray-950" :style="{ '--accent': $page.props.paroisse?.couleur_principale || '#1E40AF' }">
     <!-- Desktop Sidebar -->
     <aside
       :class="[
@@ -11,12 +11,15 @@
         <!-- Logo / Paroisse -->
         <div class="flex items-center justify-between h-16 px-6 border-b border-cream-300 dark:border-gray-800">
           <Link :href="route('admin.dashboard')" class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-spiritual-700 rounded-lg flex items-center justify-center">
-              <span class="text-white font-bold text-sm">{{ initiales }}</span>
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-spiritual-700 text-white">
+              <IconChurch class="h-5 w-5" />
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">
+              <p class="truncate font-display text-lg leading-tight text-gray-900 dark:text-white">
                 {{ paroisseName }}
+              </p>
+              <p class="text-[10px] uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">
+                Administration
               </p>
             </div>
           </Link>
@@ -32,7 +35,10 @@
         </div>
         
         <!-- Navigation -->
-        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+        <p class="px-6 pt-6 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
+          Menu
+        </p>
+        <nav class="flex-1 space-y-1 overflow-y-auto px-4 py-3">
           <NavLink
             v-for="item in navItems"
             :key="item.href"
@@ -132,7 +138,7 @@
             </svg>
           </button>
           
-          <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
+          <h1 class="truncate font-display text-xl text-gray-900 dark:text-white">
             {{ pageTitle }}
           </h1>
           
@@ -206,11 +212,6 @@ const paroisseName = computed(() => {
   return page.props.paroisse?.nom || 'Administration';
 });
 
-const initiales = computed(() => {
-  const nom = paroisseName.value;
-  return nom.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-});
-
 const roleLabel = computed(() => {
   const role = page.props.auth.user.role;
   return {
@@ -236,6 +237,20 @@ const navItems = computed(() => {
       href: route('admin.dashboard'),
       active: route().current('admin.dashboard'),
       icon: IconHome,
+    },
+    {
+      label: 'Activité',
+      href: route('admin.activites.index'),
+      active: route().current('admin.activites.*'),
+      icon: IconClock,
+      adminOnly: true,
+    },
+    {
+      label: 'Avis',
+      href: route('admin.avis.index'),
+      active: route().current('admin.avis.*'),
+      icon: IconBullhorn,
+      adminOnly: true,
     },
     {
       label: 'Annonces',
@@ -297,6 +312,8 @@ const navItems = computed(() => {
     });
   }
 
-  return items;
+  return items.filter((item) => !item.adminOnly
+    || isSuperAdmin
+    || page.props.auth.user.role === 'admin');
 });
 </script>

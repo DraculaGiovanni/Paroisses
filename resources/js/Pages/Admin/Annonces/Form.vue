@@ -43,6 +43,32 @@
           placeholder="Décrivez votre annonce..."
         />
 
+        <!-- Image de l'annonce -->
+        <div class="rounded-2xl border border-cream-300 bg-cream-50 p-4 dark:border-gray-700 dark:bg-gray-800 sm:p-5">
+          <label for="image_annonce" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Image (facultative)
+          </label>
+          <input
+            id="image_annonce"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            class="mt-2 block min-h-11 w-full text-sm text-gray-600 file:mr-3 file:min-h-11 file:rounded-lg file:border-0 file:bg-spiritual-700 file:px-4 file:font-semibold file:text-white hover:file:bg-spiritual-800 dark:text-gray-300"
+            @change="onImageChange"
+          />
+          <p v-if="form.errors.image" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.errors.image }}</p>
+          <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            JPEG, PNG ou WebP, 5 Mo maximum.
+          </p>
+
+          <div v-if="aperçuImage" class="mt-4">
+            <img :src="aperçuImage" alt="Aperçu de l'image de l'annonce" class="h-40 w-full rounded-xl object-cover" />
+            <label v-if="annonce?.image_url" class="mt-3 flex min-h-11 items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
+              <input v-model="form.supprimer_image" type="checkbox" class="h-5 w-5 rounded border-cream-300 text-spiritual-700 focus:ring-spiritual-600" />
+              Supprimer l'image actuelle
+            </label>
+          </div>
+        </div>
+
         <div class="grid gap-4 sm:gap-6 sm:grid-cols-2">
           <Select
             v-model="form.categorie"
@@ -138,6 +164,7 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { useForm, Head } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import PageHeader from '@/Components/UI/PageHeader.vue';
@@ -170,13 +197,26 @@ const form = useForm({
   categorie: props.annonce?.categorie || 'administration',
   responsable: props.annonce?.responsable || '',
   notifier: props.annonce?.notifier ?? true,
+  image: null,
+  supprimer_image: false,
 });
 
+const aperçuImage = ref(props.annonce?.image_url || null);
+
+function onImageChange(event) {
+  const fichier = event.target.files?.[0] || null;
+  form.image = fichier;
+  form.supprimer_image = false;
+  aperçuImage.value = fichier ? URL.createObjectURL(fichier) : (props.annonce?.image_url || null);
+}
+
 const submit = () => {
+  const options = { forceFormData: true };
+
   if (props.annonce) {
-    form.put(route('admin.annonces.update', props.annonce.id));
+    form.put(route('admin.annonces.update', props.annonce.id), options);
   } else {
-    form.post(route('admin.annonces.store'));
+    form.post(route('admin.annonces.store'), options);
   }
 };
 </script>

@@ -19,20 +19,25 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Confirm Password" />
+        <Head title="Confirmation du mot de passe" />
 
-        <div class="mb-4 text-sm text-gray-600">
-            This is a secure area of the application. Please confirm your
-            password before continuing.
-        </div>
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gold-700 dark:text-gold-300">
+            Sécurité
+        </p>
+        <h1 class="mt-3 font-display text-3xl text-gray-900 dark:text-white sm:text-4xl">
+            Confirmez votre mot de passe
+        </h1>
+        <p class="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+            Cette zone est protégée. Saisissez votre mot de passe pour continuer.
+        </p>
 
-        <form @submit.prevent="submit">
+        <form class="mt-8 space-y-5" @submit.prevent="submit">
             <div>
-                <InputLabel for="password" value="Password" />
+                <InputLabel for="password" value="Mot de passe" />
                 <TextInput
                     id="password"
                     type="password"
-                    class="mt-1 block w-full"
+                    class="mt-2"
                     v-model="form.password"
                     required
                     autocomplete="current-password"
@@ -41,15 +46,13 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="mt-4 flex justify-end">
-                <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Confirm
-                </PrimaryButton>
-            </div>
+            <PrimaryButton
+                class="w-full sm:w-auto"
+                :class="{ 'opacity-50': form.processing }"
+                :disabled="form.processing"
+            >
+                Confirmer
+            </PrimaryButton>
         </form>
     </GuestLayout>
 </template>
